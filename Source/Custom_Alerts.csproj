@@ -44,8 +44,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="TD_Find_Lib">
-      <HintPath>..\..\TDFindLib\Assemblies\TD_Find_Lib.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\Workshop\steamapps\workshop\content\294100\3529443295\1.6\Assemblies\TD_Find_Lib.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -54,9 +53,6 @@
   <ItemGroup>
     <PackageReference Include="Krafs.Publicizer" Version="2.2.1" />
     <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.4034-beta" />
-  </ItemGroup>
-  <ItemGroup>
-    <Publicize Include="Assembly-CSharp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
