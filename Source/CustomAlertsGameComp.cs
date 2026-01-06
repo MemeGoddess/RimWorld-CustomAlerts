@@ -181,22 +181,19 @@ namespace Custom_Alerts
 			//stopwatch.Restart();
 
 			//var element = FindGameComponentNode(doc, typeof(CustomAlertsGameComp));
-			var element = GrabNode(path);
+			var searchXml = GrabNode(path);
 			stopwatch.Stop();
 			Log.Message($"LoadElement: {stopwatch.ElapsedTicks}");
 			stopwatch.Restart();
-			if (element == null)
+			if (searchXml == null)
 				return null;
 
 			var searches = new List<QuerySearch>();
-			foreach (XmlNode search in element.SelectSingleNode("alerts").SelectSingleNode("searches").SelectNodes("li"))
+			foreach (string search in searchXml)
 			{
-				var inner = search.SelectSingleNode("search");
-				inner.RemoveChild(inner.SelectSingleNode("searchMaps"));
-
 				var tempDoc = $@"<TD_Find_Lib.QuerySearch>
 <saveable Class=""TD_Find_Lib.QuerySearch"">
-{inner.InnerXml}
+{search}
 </saveable>
 </TD_Find_Lib.QuerySearch>";
 				var query = ScribeXmlFromString.LoadFromString<QuerySearch>(tempDoc);
@@ -222,22 +219,52 @@ namespace Custom_Alerts
 			return newGroup;
 		}
 
-		public static XmlNode GrabNode(string saveNameNoExt)
+		public static string[] GrabNode(string saveNameNoExt)
 		{
+			var stopwatch = Stopwatch.StartNew();
 			var path = GenFilePaths.FilePathForSavedGame(saveNameNoExt);
 
-			var text = File.ReadAllText(path);
-			var regex = Regex.Match(text, "(<li Class=\"Custom_Alerts.CustomAlertsGameComp\">.*<alerts>.*</alerts>.*?</li>)",
+			var text = File.ReadAllLines(path);
+			stopwatch.Stop();
+			Log.Message($"LoadText: {stopwatch.ElapsedTicks}");
+			stopwatch.Restart();
+
+			var capture = false;
+			var hasCaptured = false;
+			
+			var filtered = string.Join("\n", text.Where(x =>
+			{
+				if (hasCaptured)
+					return false;
+				if (x.Contains("<components>"))
+					capture = true;
+				else if (capture && x.Contains("</components>"))
+				{
+					capture = false;
+					hasCaptured = true;
+				}
+				return capture;
+			}));
+
+			stopwatch.Stop();
+			Log.Message($"Filter: {stopwatch.ElapsedTicks}");
+			stopwatch.Restart();
+
+			var regex = Regex.Match(filtered, "<li Class=\"Custom_Alerts.CustomAlertsGameComp\">.*<alerts>.*<searches>(.*)<\\/searches>.*<\\/alerts>.*?<\\/li>",
 				RegexOptions.Singleline);
+			stopwatch.Stop();
+			Log.Message($"FirstMatch: {stopwatch.ElapsedTicks}");
+			stopwatch.Restart();
 
 			if (!regex.Success)
-				return null;
+				return [];
 
-			var xml = new XmlDocument();
-			xml.LoadXml(regex.Groups[1].Value);
+			var matches = Regex.Matches(regex.Groups[1].Value, "<li>.*<search>(.*)</search>.*</li>", RegexOptions.Singleline);
 
-			return xml.DocumentElement;
-
+			stopwatch.Stop();
+			Log.Message($"AllMatch: {stopwatch.ElapsedTicks}");
+			stopwatch.Restart();
+			return matches.Select(x => x.Groups[1].Value).ToArray();
 		}
 
 		public static XmlDocument LoadSaveDocument(string saveNameNoExt)
