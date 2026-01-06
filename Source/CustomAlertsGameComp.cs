@@ -12,6 +12,7 @@ using System.IO.Compression;
 using System.Xml.Linq;
 using System.Xml;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace Custom_Alerts
@@ -173,13 +174,14 @@ namespace Custom_Alerts
 		{
 			Log.Message(path);
 			var stopwatch = Stopwatch.StartNew();
-			var doc = LoadSaveDocument(path);
+			//var doc = LoadSaveDocument(path);
 
-			stopwatch.Stop();
-			Log.Message($"LoadDoc: {stopwatch.ElapsedTicks}");
-			stopwatch.Restart();
+			//stopwatch.Stop();
+			//Log.Message($"LoadDoc: {stopwatch.ElapsedTicks}");
+			//stopwatch.Restart();
 
-			var element = FindGameComponentNode(doc, typeof(CustomAlertsGameComp));
+			//var element = FindGameComponentNode(doc, typeof(CustomAlertsGameComp));
+			var element = GrabNode(path);
 			stopwatch.Stop();
 			Log.Message($"LoadElement: {stopwatch.ElapsedTicks}");
 			stopwatch.Restart();
@@ -218,6 +220,24 @@ namespace Custom_Alerts
 			var newGroup = new SearchAlertGroup();
 			newGroup.AddRange(searches.Select(x => new QuerySearchAlert(x, true)));
 			return newGroup;
+		}
+
+		public static XmlNode GrabNode(string saveNameNoExt)
+		{
+			var path = GenFilePaths.FilePathForSavedGame(saveNameNoExt);
+
+			var text = File.ReadAllText(path);
+			var regex = Regex.Match(text, "(<li Class=\"Custom_Alerts.CustomAlertsGameComp\">.*<alerts>.*</alerts>.*?</li>)",
+				RegexOptions.Singleline);
+
+			if (!regex.Success)
+				return null;
+
+			var xml = new XmlDocument();
+			xml.LoadXml(regex.Groups[1].Value);
+
+			return xml.DocumentElement;
+
 		}
 
 		public static XmlDocument LoadSaveDocument(string saveNameNoExt)
