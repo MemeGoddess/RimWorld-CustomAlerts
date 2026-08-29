@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
@@ -26,11 +26,12 @@
   <ItemGroup>
     <PackageReference Include="Krafs.Publicizer" Version="2.2.1" />
     <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4535" />
+    <PackageReference Include="Lib.Harmony" Version="2.3.3" ExcludeAssets="runtime" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <Publicize Include="Assembly-CSharp" />
   </ItemGroup>
-  <PropertyGroup>
-    <StartAction>Program</StartAction>
-    <StartProgram>$(SolutionDir)..\..\RimWorldWin64.exe</StartProgram>
-  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="..\1.4\Assemblies\" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="..\1.5\Assemblies\" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

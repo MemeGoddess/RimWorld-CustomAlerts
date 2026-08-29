@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +27,51 @@ namespace Custom_Alerts
 					alerts = new();
 
 				foreach (QuerySearchAlert searchAlert in alerts)
+				{
+					if (searchAlert?.search != null)
+					{
+						SanitizeQueries(searchAlert.search);
+					}
 					LiveAlerts.AddAlert(searchAlert);
+				}
+			}
+		}
+
+		private static void SanitizeQueries(QuerySearch search)
+		{
+			if (search == null) return;
+			System.Collections.IEnumerable list = null;
+			var queriesProp = search.GetType().GetProperty("queries", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+						   ?? search.GetType().GetProperty("Children", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+						   ?? search.GetType().GetProperty("Queries", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+			if (queriesProp != null)
+			{
+				list = queriesProp.GetValue(search) as System.Collections.IEnumerable;
+			}
+			if (list == null)
+			{
+				var queriesField = search.GetType().GetField("queries", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+								?? search.GetType().GetField("Children", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+				if (queriesField != null)
+				{
+					list = queriesField.GetValue(search) as System.Collections.IEnumerable;
+				}
+			}
+			if (list == null) return;
+
+			foreach (var query in list)
+			{
+				if (query == null) continue;
+				var field = query.GetType().GetField("refName", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+				if (field != null && field.FieldType == typeof(string))
+				{
+					string val = field.GetValue(query) as string;
+					if (val == "RimWorld.Designator_PlantsHarvestWood")
+					{
+						field.SetValue(query, "HarvestPlant");
+						Verse.Log.Message($"[Custom Alerts] Auto-repaired invalid query designation refName in '{search.name}' to 'HarvestPlant'.");
+					}
+				}
 			}
 		}
 

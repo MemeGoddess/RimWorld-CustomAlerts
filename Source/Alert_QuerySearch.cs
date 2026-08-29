@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -86,20 +86,29 @@ namespace Custom_Alerts
 			get
 			{
 				if (defaultPriority != AlertPriority.Critical) return base.BGColor;
-				float i = Pulser.PulseBrightness(Alert_Critical.PulseFreq, Pulser.PulseBrightness(Alert_Critical.PulseFreq, Alert_Critical.PulseAmpCritical));
+				float i = Pulser.PulseBrightness(Alert_Critical.PulseFreq, Alert_Critical.PulseAmpCritical);
 				return new Color(i, i, i) * Color.red;
 			}
 		}
 
-		public bool HasCountInName => searchAlert.search.name.Contains("%n");
-		public override string GetLabel() => searchAlert.search.name.Replace("%n", searchAlert.search.result.allThingsCount.ToString());
+		public bool HasCountInName => searchAlert?.search?.name?.Contains("%n") == true;
+
+		public override string GetLabel()
+		{
+			if (searchAlert?.search == null) return string.Empty;
+			int count = searchAlert.search.result?.allThingsCount ?? 0;
+			return searchAlert.search.name.Replace("%n", count.ToString());
+		}
 
 		public override AlertReport GetReport()
 		{
-			if (!enabled || searchAlert == null || !enableAll)	//Alert_Find auto-added as an Alert subclass, exists but never displays anything
+			if (!enabled || searchAlert?.search == null || !enableAll)	//Alert_Find auto-added as an Alert subclass, exists but never displays anything
 				return AlertReport.Inactive;
 
 			var result = SearchResult();
+			if (result?.allThings == null)
+				return AlertReport.Inactive;
+
 			int count = result.allThingsCount;
 			bool active = compareType switch
 			{
@@ -115,21 +124,25 @@ namespace Custom_Alerts
 			{
 				if (count == 0)
 					return AlertReport.Active;
-				return AlertReport.CulpritsAre(result.allThings.Take(MaxItems).ToList());
+				return AlertReport.CulpritsAre(result.allThings.Where(t => t != null && !t.Destroyed).Take(MaxItems).ToList());
 			}
 			return AlertReport.Inactive;
 		}
 
 		public override TaggedString GetExplanation()
 		{
+			if (searchAlert?.search == null) return string.Empty;
+
 			var result = SearchResult();
+			if (result?.allThings == null) return string.Empty;
+
 			StringBuilder stringBuilder = new StringBuilder();
 
 			//Name
 			stringBuilder.Append(GetLabel() + searchAlert.search.GetMapNameSuffix());
 
 			// - Count
-			if(!HasCountInName)
+			if (!HasCountInName)
 				stringBuilder.AppendLine(" - " + ThingListDrawer.LabelCountThings(result));
 			else 
 				stringBuilder.AppendLine("");
@@ -138,7 +151,8 @@ namespace Custom_Alerts
 
 			//Item list
 			foreach (Thing thing in result.allThings.Take(MaxItems))
-				stringBuilder.AppendLine("   " + thing.Label);
+				if (thing != null)
+					stringBuilder.AppendLine("   " + thing.Label);
 
 			if (result.allThings.Count > MaxItems)
 				stringBuilder.AppendLine("TD.Maximum0Displayed".Translate(MaxItems));
@@ -150,15 +164,31 @@ namespace Custom_Alerts
 			return stringBuilder.ToString().TrimEndNewlines();
 		}
 
+		private static HashSet<string> loggedErrors = new();
 		private SearchResult SearchResult()
 		{
-			searchAlert.search.RemakeList();
+			if (searchAlert?.search == null) return null;
 
-			return searchAlert.search.result;
+			try
+			{
+				searchAlert.search.RemakeList();
+				return searchAlert.search.result;
+			}
+			catch (Exception ex)
+			{
+				string key = searchAlert.search.name ?? "unnamed";
+				if (loggedErrors.Add(key))
+				{
+					Verse.Log.Error($"[Custom Alerts] Exception in alert '{key}': {ex}");
+				}
+				return searchAlert.search.result;
+			}
 		}
 
 		public override void OnClick()
 		{
+			if (searchAlert?.search == null) return;
+
 			if (Event.current.button == 1)
 			{
 				List<FloatMenuOption> options = SearchStorage.ExportSearchOptions(searchAlert.search, transferTags);
