@@ -17,9 +17,5 @@
 	<TD.NewAlert>New Alert</TD.NewAlert>
 	<TD.NameForNewAlert>Name for New Alert</TD.NameForNewAlert>
 	<TD.EditingAlert>Editing Alert</TD.EditingAlert>
-	<TD.CopyNameSuffix> (Copy)</TD.CopyNameSuffix>
-	<TD.Delete0>Delete {0}?</TD.Delete0>
-	<TD.ActiveSearches>Active Custom Alerts</TD.ActiveSearches>
-	<TD.EditThisSearch>Edit search</TD.EditThisSearch>
 	
 </LanguageData>

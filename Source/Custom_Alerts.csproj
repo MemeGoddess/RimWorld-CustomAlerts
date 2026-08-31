@@ -30,8 +30,4 @@
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <Publicize Include="Assembly-CSharp" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="..\1.4\Assemblies\" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="..\1.5\Assemblies\" SkipUnchangedFiles="true" />
-  </Target>
 </Project>

@@ -39,37 +39,19 @@ namespace Custom_Alerts
 
 		private static void SanitizeQueries(QuerySearch search)
 		{
-			if (search == null) return;
-			System.Collections.IEnumerable list = null;
-			var queriesProp = search.GetType().GetProperty("queries", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-						   ?? search.GetType().GetProperty("Children", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-						   ?? search.GetType().GetProperty("Queries", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-			if (queriesProp != null)
-			{
-				list = queriesProp.GetValue(search) as System.Collections.IEnumerable;
-			}
-			if (list == null)
-			{
-				var queriesField = search.GetType().GetField("queries", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-								?? search.GetType().GetField("Children", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-				if (queriesField != null)
-				{
-					list = queriesField.GetValue(search) as System.Collections.IEnumerable;
-				}
-			}
-			if (list == null) return;
+			if (search?.Children?.queries == null) return;
+			var selNameField = typeof(TD_Find_Lib.ThingQueryDesignation).GetField("selName", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+			if (selNameField == null) return;
 
-			foreach (var query in list)
+			foreach (var query in search.Children.queries)
 			{
-				if (query == null) continue;
-				var field = query.GetType().GetField("refName", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-				if (field != null && field.FieldType == typeof(string))
+				if (query is TD_Find_Lib.ThingQueryDesignation designation)
 				{
-					string val = field.GetValue(query) as string;
+					string val = selNameField.GetValue(designation) as string;
 					if (val == "RimWorld.Designator_PlantsHarvestWood")
 					{
-						field.SetValue(query, "HarvestPlant");
-						Verse.Log.Message($"[Custom Alerts] Auto-repaired invalid query designation refName in '{search.name}' to 'HarvestPlant'.");
+						selNameField.SetValue(designation, "HarvestPlant");
+						Verse.Log.Message($"[Custom Alerts] Auto-repaired invalid query designation selName in '{search.name}' to 'HarvestPlant'.");
 					}
 				}
 			}
