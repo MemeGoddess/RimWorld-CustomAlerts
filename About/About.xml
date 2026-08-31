@@ -19,6 +19,8 @@
 		</li>
 	</modDependencies>
 	<loadAfter>
+		<li>brrainz.harmony</li>
+		<li>Ludeon.RimWorld</li>
 		<li>Memegoddess.TDFindLib</li>
 	</loadAfter>
 	<modIconPath IgnoreIfNoMatchingField="True">TDCustomAlertsIcon</modIconPath>

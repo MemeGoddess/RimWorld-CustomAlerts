@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -155,8 +155,9 @@ namespace Custom_Alerts
 
 			//Show when (backwards right to left O_o)
 			Rect textRect = row.GetRect(36); textRect.height -= 4; textRect.width -= 4;
-			string dummyStr = null;
-			Widgets.TextFieldNumeric(textRect, ref searchAlert.alert.countToAlert, ref dummyStr, 0, 999999);
+			string countBuffer = searchAlert.alert.countToAlert.ToString();
+			Widgets.TextFieldNumeric(textRect, ref searchAlert.alert.countToAlert, ref countBuffer, 0, 999999);
+
 			if (row.ButtonIcon(TexFor(searchAlert.alert.compareType)))
 				searchAlert.alert.compareType = (CompareType)((int)(searchAlert.alert.compareType + 1) % 3);
 			row.Label("TD.ShowWhen".Translate());
@@ -164,8 +165,9 @@ namespace Custom_Alerts
 
 			//Seconds until
 			textRect = row.GetRect(36); textRect.height -= 4; textRect.width -= 4;
-			dummyStr = null;
-			Widgets.TextFieldNumeric(textRect, ref searchAlert.alert.secondsBeforeAlert, ref dummyStr, 0, 999999);
+			string secondsBuffer = searchAlert.alert.secondsBeforeAlert.ToString();
+			Widgets.TextFieldNumeric(textRect, ref searchAlert.alert.secondsBeforeAlert, ref secondsBuffer, 0, 999999);
+
 			TooltipHandler.TipRegion(textRect, "TD.Tip1000SecondsInARimworldDay".Translate());
 			row.Label("TD.SecondsUntilShown".Translate());
 

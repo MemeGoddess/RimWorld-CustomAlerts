@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,13 +22,19 @@ namespace Custom_Alerts
 
 		public static void AddAlert(QuerySearchAlert searchAlert)
 		{
-			AllAlerts.Add(searchAlert.alert);
+			if (searchAlert?.alert == null) return;
+			var alerts = AllAlerts;
+			if (alerts != null && !alerts.Contains(searchAlert.alert))
+			{
+				alerts.Add(searchAlert.alert);
+			}
 		}
 
 		public static void RemoveAlert(QuerySearchAlert searchAlert)
 		{
-			AllAlerts.Remove(searchAlert.alert);
-			activeAlerts.Remove(searchAlert.alert);
+			if (searchAlert?.alert == null) return;
+			AllAlerts?.Remove(searchAlert.alert);
+			activeAlerts?.Remove(searchAlert.alert);
 		}
 	}
 }

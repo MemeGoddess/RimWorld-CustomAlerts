@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +27,33 @@ namespace Custom_Alerts
 					alerts = new();
 
 				foreach (QuerySearchAlert searchAlert in alerts)
+				{
+					if (searchAlert?.search != null)
+					{
+						SanitizeQueries(searchAlert.search);
+					}
 					LiveAlerts.AddAlert(searchAlert);
+				}
+			}
+		}
+
+		private static void SanitizeQueries(QuerySearch search)
+		{
+			if (search?.Children?.queries == null) return;
+			var selNameField = typeof(TD_Find_Lib.ThingQueryDesignation).GetField("selName", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+			if (selNameField == null) return;
+
+			foreach (var query in search.Children.queries)
+			{
+				if (query is TD_Find_Lib.ThingQueryDesignation designation)
+				{
+					string val = selNameField.GetValue(designation) as string;
+					if (val == "RimWorld.Designator_PlantsHarvestWood")
+					{
+						selNameField.SetValue(designation, "HarvestPlant");
+						Verse.Log.Message($"[Custom Alerts] Auto-repaired invalid query designation selName in '{search.name}' to 'HarvestPlant'.");
+					}
+				}
 			}
 		}
 
