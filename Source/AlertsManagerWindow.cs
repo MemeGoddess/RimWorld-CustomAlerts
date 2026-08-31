@@ -146,9 +146,6 @@ namespace Custom_Alerts
 			SearchStorage.ButtonChooseExportSearch(row, searchAlert.search, SearchAlertTransfer.TransferTag);
 		}
 
-		private static Dictionary<string, string> countBuffers = new();
-		private static Dictionary<string, string> secondsBuffers = new();
-
 		public override void DrawExtraRowRect(Rect rowRect, QuerySearchAlert searchAlert, int i)
 		{
 			WidgetRow row = new WidgetRow(rowRect.xMax, rowRect.y, UIDirection.LeftThenDown);
@@ -156,13 +153,10 @@ namespace Custom_Alerts
 			//Check off
 			row.Checkbox(ref searchAlert.alert.enabled);
 
-			string alertKey = searchAlert.GetHashCode().ToString();
-
 			//Show when (backwards right to left O_o)
 			Rect textRect = row.GetRect(36); textRect.height -= 4; textRect.width -= 4;
-			if (!countBuffers.TryGetValue(alertKey, out string countBuffer)) countBuffer = searchAlert.alert.countToAlert.ToString();
+			string countBuffer = searchAlert.alert.countToAlert.ToString();
 			Widgets.TextFieldNumeric(textRect, ref searchAlert.alert.countToAlert, ref countBuffer, 0, 999999);
-			countBuffers[alertKey] = countBuffer;
 
 			if (row.ButtonIcon(TexFor(searchAlert.alert.compareType)))
 				searchAlert.alert.compareType = (CompareType)((int)(searchAlert.alert.compareType + 1) % 3);
@@ -171,9 +165,8 @@ namespace Custom_Alerts
 
 			//Seconds until
 			textRect = row.GetRect(36); textRect.height -= 4; textRect.width -= 4;
-			if (!secondsBuffers.TryGetValue(alertKey, out string secondsBuffer)) secondsBuffer = searchAlert.alert.secondsBeforeAlert.ToString();
+			string secondsBuffer = searchAlert.alert.secondsBeforeAlert.ToString();
 			Widgets.TextFieldNumeric(textRect, ref searchAlert.alert.secondsBeforeAlert, ref secondsBuffer, 0, 999999);
-			secondsBuffers[alertKey] = secondsBuffer;
 
 			TooltipHandler.TipRegion(textRect, "TD.Tip1000SecondsInARimworldDay".Translate());
 			row.Label("TD.SecondsUntilShown".Translate());
