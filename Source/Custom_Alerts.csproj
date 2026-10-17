@@ -1,36 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <OutputType>Library</OutputType>
-    <AllowedReferenceRelatedFileExtensions>None</AllowedReferenceRelatedFileExtensions>
-    <LangVersion>latest</LangVersion>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\1.6\Assemblies\</OutputPath>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <OutputPath>..\1.6\Assemblies\</OutputPath>
-    <DefineConstants></DefineConstants>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="TD_Find_Lib">
-      <HintPath>..\Workshop\steamapps\workshop\content\294100\3529443295\1.6\Assemblies\TD_Find_Lib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Krafs.Publicizer" Version="2.2.1" />
-    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4535" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <Publicize Include="Assembly-CSharp" />
-  </ItemGroup>
-  <PropertyGroup>
-    <StartAction>Program</StartAction>
-    <StartProgram>$(SolutionDir)..\..\RimWorldWin64.exe</StartProgram>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <AllowedReferenceRelatedFileExtensions>None</AllowedReferenceRelatedFileExtensions>
+        <LangVersion>latest</LangVersion>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <Version>1.7</Version>
+    	<GenerateDependencyFile>false</GenerateDependencyFile>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>portable</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>..\$(Version)\Assemblies\</OutputPath>
+        <DefineConstants>DEBUG</DefineConstants>
+        <WarningLevel>4</WarningLevel>
+        <Prefer32Bit>false</Prefer32Bit>
+    </PropertyGroup>
+    <!-- Release configuration -->
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <DebugType>embedded</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>..\$(Version)\Assemblies\</OutputPath>
+        <WarningLevel>4</WarningLevel>
+        <Prefer32Bit>false</Prefer32Bit>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Krafs.Publicizer" Version="2.2.1"/>
+        <PackageReference Include="Krafs.Rimworld.Ref" Version="$(Version).*-*"/>
+        <PackageReference Include="MemeGoddess.RimWorld.TDFindLib" Version="*"/>
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+        <Publicize Include="Assembly-CSharp"/>
+    </ItemGroup>
+    <PropertyGroup>
+        <StartAction>Program</StartAction>
+        <StartProgram>$(SolutionDir)..\..\RimWorldWin64.exe</StartProgram>
+    </PropertyGroup>
 </Project>
